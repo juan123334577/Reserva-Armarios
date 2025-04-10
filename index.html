@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset='utf-8' />
+    <title>Reservas de Armarios</title>
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        #calendar-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        #calendar {
+            height: 700px;
+            margin-top: 20px;
+        }
+        .configuracion-reserva {
+            display: flex;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .form-container {
+            flex: 1;
+        }
+        .normas-container {
+            flex: 1;
+            padding-left: 20px;
+            border-left: 1px solid #ced4da;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+            color: #333;
+        }
+        select, input, .btn-reservar, .message {
+            width: calc(100% - 20px); /* Reducir el ancho */
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            background-color: #fff;
+            transition: border-color 0.15s;
+            box-sizing: border-box;
+        }
+        select:focus, input:focus, .btn-reservar:focus, .message:focus {
+            border-color: #80bdff;
+            outline: 0;
+            box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+        }
+        .btn-reservar {
+            background-color: #28a745;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            width: auto; /* Ajustar el ancho automáticamente */
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+        .btn-reservar:hover {
+            background-color: #218838;
+        }
+        .btn-reservar:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        .message {
+            font-size: 0.9em;
+            margin-top: 10px;
+            padding: 8px;
+            border-radius: 4px;
+            display: none;
+        }
+        .error-message {
+            color: #dc3545;
+            background-color: #f8d7da;
+        }
+        .success-message {
+            color: #155724;
+            background-color: #d4edda;
+        }
+        .fc-event {
+            cursor: pointer;
+            font-size: 0.85em;
+            padding: 2px 4px;
+        }
+        .fc-timegrid-slot-label-frame {
+            text-align: center;
+        }
+        .fc-timegrid-slot-label-cushion {
+            font-size: 0.9em;
+        }
+        .fc-toolbar-title {
+            font-size: 1.5em;
+        }
+        .fc-col-header-cell-cushion {
+            font-weight: bold;
+            padding: 5px;
+        }
+        .section-title {
+            font-size: 1.25em;
+            font-weight: bold;
+            color: #333;
+        }
+        .fc-daygrid-event-dot {
+            display: none; /* Ocultar el punto de evento en la vista de mes */
+        }
+        .fc-daygrid-event {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: flex-start;
+            padding: 5px;
+            border-radius: 4px;
+            margin: 2px 0;
+        }
+        .fc-daygrid-event .fc-event-main {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .fc-daygrid-event .fc-event-title {
+            font-weight: bold;
+        }
+        .fc-daygrid-event .fc-event-time {
+            font-weight: normal;
+        }
+        .fc-daygrid-event .fc-event-armario {
+            font-weight: normal;
+        }
+        .fc-daygrid-event .fc-event-horario {
+            font-weight: normal;
+        }
+        .fc-daygrid-event.fc-h-event {
+            flex-direction: row;
+            flex-wrap: wrap;
+        }
+        .fc-daygrid-event.fc-h-event .fc-event-main {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="calendar-container">
+        <h1>Reservas de Armarios</h1>
+
+        <div class="configuracion-reserva">
+            <div class="form-container">
+                <h2 class="section-title">Nueva Reserva</h2>
+
+                <div class="form-group">
+                    <label for="select-armario">Armario:</label>
+                    <select id="select-armario" required>
+                        <option value="">Seleccione un armario</option>
+                        <option value="AR-111">AR-111</option>
+                        <option value="AR-114">AR-114</option>
+                        <option value="ARM-01">ARM-01</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="select-fecha">Fecha:</label>
+                    <input type="date" id="select-fecha" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="select-horario">Horario:</label>
+                    <select id="select-horario" required>
+                        <option value="">Seleccione horario</option>
+                        <option value="8:05-9:00">8:05 - 9:00</option>
+                        <option value="9:00-9:55">9:00 - 9:55</option>
+                        <option value="9:55-10:50">9:55 - 10:50</option>
+                        <option value="11:20-12:15">11:20 - 12:15</option>
+                        <option value="12:15-13:10">12:15 - 13:10</option>
+                        <option value="13:10-14:05">13:10 - 14:05</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="select-aula">Aula:</label>
+                    <select id="select-aula" required>
+                        <option value="">Seleccione aula</option>
+                        <option value="A203">A203</option>
+                        <option value="A204">A204</option>
+                        <option value="T205">T205</option>
+                        <option value="T208">T208</option>
+                        <option value="A209">A209</option>
+                        <option value="A210">A210</option>
+                        <option value="A211">A211</option>
+                        <option value="A212">A212</option>
+                        <option value="A213">A213</option>
+                        <option value="A214">A214</option>
+                        <option value="T215">T215</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="select-grupo">Grupo:</label>
+                    <select id="select-grupo" required>
+                        <option value="">Seleccione grupo</option>
+                        <option value="1A">1A</option>
+                        <option value="2A">2A</option>
+                        <option value="1B">1B</option>
+                        <option value="2B">2B</option>
+                        <option value="1C">1C</option>
+                        <option value="2C">2C</option>
+                        <option value="1D">1D</option>
+                        <option value="2D">2D</option>
+                        <option value="1E">1E</option>
+                        <option value="2E">2E</option>
+                        <option value="1F">1F</option>
+                        <option value="2F">2F</option>
+                        <option value="1G">1G</option>
+                        <option value="2G">2G</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="nombre-profesor">Nombre del profesor:</label>
+                    <input type="text" id="nombre-profesor" placeholder="Ingrese su nombre" required minlength="1">
+                </div>
+
+                <button id="btn-reservar" class="btn-reservar" disabled>Reservar</button>
+
+                <div id="error-message" class="message error-message"></div>
+                <div id="success-message" class="message success-message"></div>
+            </div>
+
+            <div class="normas-container">
+                <h2 class="section-title">Normas del Profesorado</h2>
+                <p><strong>1. Reserva Obligatoria:</strong></p>
+                <p>Los Armarios deben ser reservados a través de la página de reservas antes de ser utilizados. No se permitirá el uso de portátiles sin reserva previa.</p>
+
+                <p><strong>2. Apagar los portátiles:</strong></p>
+                <p>Al finalizar el uso, los portátiles deben apagarse correctamente para garantizar su buen funcionamiento.</p>
+
+                <p><strong>3. Colocarlos en orden:</strong></p>
+                <p>Los portátiles deben ser devueltos a su lugar correspondiente, organizados según su número asignado.</p>
+
+                <p><strong>4. Informar problemas técnicos:</strong></p>
+                <p>Si el portátil presenta algún problema (pantalla rota, teclas que no funcionan, fallos en el sistema, etc.), informa inmediatamente al equipo de soporte.</p>
+
+                <p><strong>5. Comportamiento de los Estudiantes con los Portátiles:</strong></p>
+                <p>Los profesores deben supervisar constantemente a los estudiantes cuando utilicen los portátiles en clase, garantizando que los dispositivos sean utilizados de manera adecuada.</p>
+
+                <p><strong>6. Devolución Puntual:</strong></p>
+                <p>Los portátiles deben ser devueltos a tiempo en el armario correspondiente, apagados correctamente y sin programas abiertos.</p>
+
+                <p>Estas normas son esenciales para mantener el orden y la funcionalidad de los equipos. ¡Gracias por tu colaboración!</p>
+            </div>
+        </div>
+
+        <div id='calendar'></div>
+    </div>
+
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/es.min.js'></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Verificar que FullCalendar está cargado
+            if (typeof FullCalendar === 'undefined') {
+                alert('Error: No se pudo cargar la biblioteca FullCalendar. Verifica tu conexión a internet.');
+                return;
+            }
+
+            var calendarEl = document.getElementById('calendar');
+            if (!calendarEl) {
+                alert('Error: No se encontró el elemento del calendario');
+                return;
+            }
+
+            var btnReservar = document.getElementById('btn-reservar');
+            var errorMessageEl = document.getElementById('error-message');
+            var successMessageEl = document.getElementById('success-message');
+
+            // Mapeo de horarios
+            const horarios = {
+                '8:05-9:00': { start: '08:05', end: '09:00' },
+                '9:00-9:55': { start: '09:00', end: '09:55' },
+                '9:55-10:50': { start: '09:55', end: '10:50' },
+                '11:20-12:15': { start: '11:20', end: '12:15' },
+                '12:15-13:10': { start: '12:15', end: '13:10' },
+                '13:10-14:05': { start: '13:10', end: '14:05' }
+            };
+
+            // Configuración del calendario
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                locale: 'es',
+                initialView: 'timeGridWeek',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek'
+                },
+                views: {
+                    timeGridWeek: {
+                        buttonText: 'Semana Laboral',
+                        slotMinTime: '07:00:00',
+                        slotMaxTime: '15:00:00',
+                        slotLabelInterval: '01:00:00',
+                        slotLabelFormat: {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: false
+                        },
+                        weekends: false,
+                        dayHeaderFormat: { weekday: 'short', day: 'numeric', month: 'short' }
+                    },
+                    dayGridMonth: {
+                        buttonText: 'Mes',
+                        weekends: true,
+                        dayHeaderFormat: { weekday: 'short' },
+                        eventLimit: 6, // Mostrar hasta 6 eventos por día
+                        moreLinkClick: 'week', // Redirigir a la vista semanal al hacer clic en "más"
+                        moreLinkText: 'más'
+                    }
+                },
+                allDaySlot: false,
+                slotDuration: '00:15:00', // Intervalo de 15 minutos
+                firstDay: 1,
+                nowIndicator: true,
+                selectable: false,
+                eventContent: function(arg) {
+                    if (arg.view.type === 'dayGridMonth') {
+                        return {
+                            html: `<div class="fc-event-title">${arg.event.extendedProps.profesor}</div>
+                                   <div class="fc-event-armario">${arg.event.extendedProps.armario}</div>
+                                   <div class="fc-event-horario">${arg.event.extendedProps.horario}</div>`
+                        };
+                    } else {
+                        return {
+                            html: `<div class="fc-event-title">${arg.event.extendedProps.profesor}</div>
+                                   <div class="fc-event-armario">${arg.event.extendedProps.armario}</div>
+                                   <div class="fc-event-aula">${arg.event.extendedProps.aula}</div>
+                                   <div class="fc-event-grupo">${arg.event.extendedProps.grupo}</div>
+                                   <div class="fc-event-horario">${arg.event.extendedProps.horario}</div>`
+                        };
+                    }
+                },
+                eventClick: function(info) {
+                    if (confirm(`¿Eliminar reserva de ${info.event.extendedProps.profesor}?`)) {
+                        info.event.remove();
+                        showMessage('Reserva eliminada', 'success');
+                    }
+                },
+                eventColor: function(arg) {
+                    if (arg.event.extendedProps.armario === 'AR-111') {
+                        return '#3498db';
+                    } else if (arg.event.extendedProps.armario === 'AR-114') {
+                        return '#2ecc71';
+                    } else if (arg.event.extendedProps.armario === 'ARM-01') {
+                        return '#FFD700'; // Amarillo
+                    }
+                }
+            });
+
+            calendar.render();
+            console.log('Calendario renderizado correctamente');
+
+            // Función para validar el formulario
+            function checkFormValidity() {
+                var isValid = (
+                    document.getElementById('select-armario').value &&
+                    document.getElementById('select-horario').value &&
+                    document.getElementById('select-aula').value &&
+                    document.getElementById('select-grupo').value &&
+                    document.getElementById('nombre-profesor').value.trim().length >= 1 &&
+                    document.getElementById('select-fecha').value
+                );
+                btnReservar.disabled = !isValid;
+            }
+
+            // Event listeners
+            document.querySelectorAll('select, input').forEach(el => {
+                el.addEventListener('change', checkFormValidity);
+            });
+            document.getElementById('nombre-profesor').addEventListener('input', checkFormValidity);
+
+            // Manejar reserva
+            btnReservar.addEventListener('click', function() {
+                hideMessages();
+
+                var armario = document.getElementById('select-armario').value;
+                var horario = document.getElementById('select-horario').value;
+                var aula = document.getElementById('select-aula').value;
+                var grupo = document.getElementById('select-grupo').value;
+                var nombreProfesor = document.getElementById('nombre-profesor').value.trim();
+                var fecha = document.getElementById('select-fecha').value;
+
+                if (!horarios[horario]) {
+                    showMessage('Seleccione un horario válido', 'error');
+                    return;
+                }
+
+                // Crear fecha de inicio y fin
+                var startTime = horarios[horario].start.split(':');
+                var endTime = horarios[horario].end.split(':');
+
+                var startDate = new Date(fecha);
+                startDate.setHours(parseInt(startTime[0]), parseInt(startTime[1]), 0, 0);
+
+                var endDate = new Date(startDate);
+                endDate.setHours(parseInt(endTime[0]), parseInt(endTime[1]), 0, 0);
+
+                // Verificar disponibilidad
+                var eventos = calendar.getEvents();
+                var conflicto = eventos.some(event => {
+                    return event.extendedProps.armario === armario &&
+                           ((event.start <= startDate && event.end > startDate) ||
+                            (event.start < endDate && event.end >= endDate));
+                });
+
+                if (conflicto) {
+                    showMessage(`${armario} ya está reservado en este horario`, 'error');
+                    return;
+                }
+
+                // Crear evento
+                calendar.addEvent({
+                    title: `${nombreProfesor}`,
+                    start: startDate,
+                    end: endDate,
+                    extendedProps: {
+                        armario: armario,
+                        aula: aula,
+                        horario: horario,
+                        grupo: grupo,
+                        profesor: nombreProfesor
+                    },
+                    color: armario === 'AR-111' ? '#3498db' : armario === 'AR-114' ? '#2ecc71' : '#FFD700'
+                });
+
+                showMessage(`Reserva confirmada para ${nombreProfesor}`, 'success');
+            });
+
+            // Funciones auxiliares
+            function showMessage(message, type) {
+                hideMessages();
+                var el = type === 'error' ? errorMessageEl : successMessageEl;
+                el.textContent = message;
+                el.style.display = 'block';
+            }
+
+            function hideMessages() {
+                errorMessageEl.style.display = 'none';
+                successMessageEl.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
